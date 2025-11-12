@@ -15,7 +15,7 @@ export function createLobby(hostID: string, hostName: string): Lobby {
   return newLobby
 }
 
-function generateCode(length:number = 4){
+export function generateCode(length:number = 4){
     const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let code = "";
 
@@ -26,12 +26,12 @@ function generateCode(length:number = 4){
     return code;
 }
 
-function getLobby(code:string){
+export function getLobby(code:string){
     return lobbies.get(code);
 }
 
 export function addPlayer(code: string, id: string, name: string): Lobby | null {
-  const lobby = lobbies.get(code)
+  const lobby = getLobby(code);
   if (!lobby) return null
   if (lobby.players.find(p => p.id === id)) return lobby
   lobby.players.push({ id, name, score: 0 })
@@ -40,5 +40,10 @@ export function addPlayer(code: string, id: string, name: string): Lobby | null 
 
 export function getAllLobbies() {
   return Array.from(lobbies.values())
+}
+
+export function updateFlashcards(code: string, flashcards: Flashcard[]) {
+    const lobby = getLobby(code);
+    if (lobby) lobby.flashcards = flashcards;
 }
 
