@@ -19,7 +19,7 @@ export function createLobby(hostID: string, hostName: string): Lobby {
 export function generateCode(length: number = 4) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   let code = "";
-  
+
   while(codes.has(code)){
     for (let i = 0; i < length; i++) {
       code += chars.charAt(Math.floor(Math.random() * chars.length));
@@ -58,3 +58,4 @@ export function updateFlashcards(code: string, flashcards: Flashcard[]) {
   const lobby = getLobby(code);
   if (lobby) lobby.flashcards = flashcards;
 }
+
