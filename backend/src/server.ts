@@ -24,7 +24,7 @@ const io = new Server<ClientToServerEvents, ServerToClientEvents>(httpServer, {
 io.on("connection", (socket) => {
   console.log(`connected to: ${socket.id}`);
 
-  io.on("createLobby", (nickname) => {
+  socket.on("createLobby", (nickname) => {
     const lobby = createLobby(socket.id, nickname);
     socket.join(lobby.code);
     socket.emit("lobbyUpdated", lobby);
