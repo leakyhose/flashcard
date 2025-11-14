@@ -1,79 +1,26 @@
-import { useParams, useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useParams, useLocation } from "react-router-dom";
+import { useState } from "react";
 import { socket } from "../socket";
-import type { Lobby as LobbyType } from "@shared/types";
+import { useCodeValidation } from "../hooks/useCodeValidation";
+import { useLobbyData } from "../hooks/useLobbyData";
 
 export default function Lobby() {
   const { code } = useParams();
   const location = useLocation();
-  const navigate = useNavigate();
-  const [lobby, setLobby] = useState<LobbyType | null | undefined>(undefined);
   const [nickname, setNickname] = useState<string>(
     location.state?.nickname || "",
   );
   const [nicknameInput, setNicknameInput] = useState("");
+  const [leader, setLeader] = useState(false);
 
-  const isValidFormat = code && /^[A-Za-z]{4}$/.test(code);
-  const normalizedCode = code?.toUpperCase();
-  const needsRedirect = code && normalizedCode && code !== normalizedCode;
+  useCodeValidation(code);
 
-  // Redirects when code isnt capitalized
-  useEffect(() => {
-    if (needsRedirect) {
-      navigate(`/${normalizedCode}`, { replace: true });
-    }
-  }, [needsRedirect, normalizedCode, navigate]);
-
-  // Redirects when invalid code
-  useEffect(() => {
-    if (!isValidFormat) {
-      navigate("/", { replace: true, state: { notFound: true } });
-    }
-  }, [isValidFormat, navigate]);
-
-  // Handle inital lobby fetch
-  useEffect(() => {
-    if (!isValidFormat || needsRedirect) return;
-
-    const handleLobbyData = (lobbyData: LobbyType | null) => {
-      setLobby(lobbyData);
-    };
-
-    socket.on("lobbyData", handleLobbyData);
-    socket.emit("getLobby", normalizedCode!);
-
-    return () => {
-      socket.off("lobbyData", handleLobbyData);
-    };
-  }, [normalizedCode, isValidFormat, needsRedirect]);
-
-  // Handle lobby updating
-  useEffect(() => {
-    const handleLobbyUpdated = (updatedLobby: LobbyType) => {
-      if (!updatedLobby) {
-        navigate("/", { replace: true, state: { notFound: true } });
-      }
-      setLobby(updatedLobby);
-    };
-
-    socket.on("lobbyUpdated", handleLobbyUpdated);
-
-    return () => {
-      socket.off("lobbyUpdated", handleLobbyUpdated);
-    };
-  }, [normalizedCode]);
-
-  // Redirects back to home when code is invalid in any way
-  useEffect(() => {
-    if (lobby === null) {
-      navigate("/", { replace: true, state: { notFound: true } });
-    }
-  }, [lobby, navigate]);
+  const lobby = useLobbyData(code);
 
   const handleJoinLobby = () => {
-    if (!nicknameInput.trim() || !normalizedCode) return;
+    if (!nicknameInput.trim()) return;
     setNickname(nicknameInput);
-    socket.emit("joinLobby", normalizedCode, nicknameInput);
+    socket.emit("joinLobby", code!, nicknameInput);
   };
 
   if (lobby === undefined) {

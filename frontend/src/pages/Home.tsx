@@ -19,6 +19,9 @@ export default function Home() {
 
   useEffect(() => {
     const handleLobbyUpdated = (lobby: Lobby) => {
+      socket.off("lobbyUpdated", handleLobbyUpdated);
+      socket.off("lobbyData", handleLobbyData);
+      
       navigate(`/${lobby.code}`, {
         replace: true,
         state: { nickname },
