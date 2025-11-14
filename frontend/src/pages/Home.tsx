@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { socket } from "./socket";
-import type { Lobby } from "../../shared/types";
+import { socket } from "../socket";
+import type { Lobby } from "@shared/types";
 
 export default function Home() {
   const location = useLocation();

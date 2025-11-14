@@ -1,7 +1,7 @@
 import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
-import { socket } from "./socket";
-import type { Lobby as LobbyType } from "../../shared/types";
+import { socket } from "../socket";
+import type { Lobby as LobbyType } from "@shared/types";
 
 export default function Lobby() {
   const { code } = useParams();
