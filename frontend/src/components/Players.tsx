@@ -12,12 +12,15 @@ export function Players({ players }: PlayersProps) {
   };
 
   return (
-    <div>
-      <ul>
+    <div className="flex-1 flex flex-col overflow-hidden">
+      <ul className="flex-1 overflow-auto">
         {players.map((player) => (
-          <li key={player.id}>
-            <div onClick={() => handleUpdateLeader(player.id)}>
-              {player.name} - Score: {player.score}
+          <li key={player.id} className="border-b">
+            <div
+              onClick={() => handleUpdateLeader(player.id)}
+              className="p-3 hover:bg-gray-100 cursor-pointer truncate"
+            >
+              {player.name} - {player.score}
             </div>
           </li>
         ))}

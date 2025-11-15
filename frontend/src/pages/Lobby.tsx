@@ -3,10 +3,11 @@ import { useEffect, useState } from "react";
 import { socket } from "../socket";
 import { useCodeValidation } from "../hooks/useCodeValidation";
 import { useLobbyData } from "../hooks/useLobbyData";
-import { Tabs } from "../components/Tabs";
 import { Players } from "../components/Players";
 import { Chat } from "../components/Chat";
 import { UploadFlashcard } from "../components/UploadFlashcard";
+import { LobbyHeader } from "../components/LobbyHeader";
+import { FlashcardPreview } from "../components/FlashcardPreview";
 
 export default function Lobby() {
   const { code } = useParams();
@@ -15,7 +16,6 @@ export default function Lobby() {
     location.state?.nickname || "",
   );
   const [nicknameInput, setNicknameInput] = useState("");
-  const [tabNum, setTabNum] = useState(0);
   const [isLeader, setIsLeader] = useState(false);
 
   useCodeValidation(code);
@@ -44,7 +44,7 @@ export default function Lobby() {
   if (lobby === null) {
     return null;
   }
-  
+
   const isInLobby = lobby.players.some((player) => player.id === socket.id);
 
   if (!nickname || !isInLobby) {
@@ -68,23 +68,23 @@ export default function Lobby() {
   }
 
   return (
-    <div>
-      <h2>Lobby Code: {lobby.code}</h2>
-      <h2>Your name: {nickname}</h2>
-      <Tabs tabNum={tabNum} setTabNum={setTabNum} />
-      <div>{tabNum === 0 ? <Chat /> : <Players players={lobby.players} />}</div>
-      <UploadFlashcard isLeader={isLeader} />
+    <div className="flex flex-col h-screen">
+      <LobbyHeader code={code!} nickname={nickname} />
 
+      <div className="flex flex-1 overflow-hidden">
+        <div className="w-64 border-r flex flex-col">
+          <Players players={lobby.players} />
+          <UploadFlashcard isLeader={isLeader} />
+        </div>
 
-      
-      <ul>
-        {lobby.flashcards.map((flashcard) => (
-          <li key={flashcard.id}>
-            {flashcard.question} : {flashcard.answer}
-          </li>
-        ))}
-      </ul>
+        <div className="flex-1 p-4 overflow-auto">
+          <FlashcardPreview flashcards={lobby.flashcards} />
+        </div>
 
+        <div className="w-80 border-l">
+          <Chat />
+        </div>
+      </div>
     </div>
   );
 }

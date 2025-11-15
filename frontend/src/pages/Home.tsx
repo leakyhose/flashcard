@@ -19,7 +19,7 @@ export default function Home() {
 
   const handleCreateLobby = () => {
     if (!nickname.trim()) {
-      alert("Missing nickname")
+      alert("Missing nickname");
       return;
     }
 
@@ -37,7 +37,7 @@ export default function Home() {
 
   const handleJoinLobby = () => {
     if (!nickname.trim() || !codeInput.trim()) {
-      alert("Missing nickname or lobby code")
+      alert("Missing nickname or lobby code");
       return;
     }
 
@@ -69,11 +69,11 @@ export default function Home() {
       <div>
         <h1>Flashcard</h1>
         <div>
-        <input
-          placeholder="Your nickname"
-          value={nickname}
-          onChange={(name) => setNickname(name.target.value)}
-        />
+          <input
+            placeholder="Your nickname"
+            value={nickname}
+            onChange={(name) => setNickname(name.target.value)}
+          />
           <button onClick={handleCreateLobby}>Create Lobby</button>
         </div>
 

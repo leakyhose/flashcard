@@ -41,8 +41,14 @@ export function ImportModal({ isOpen, onClose, onImport }: ImportModalProps) {
   };
 
   return (
-    <div onClick={onClose}>
-      <div style={{ border: "1px solid black" }} onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div
+        className="border border-black bg-white p-4 max-w-2xl w-full max-h-[80vh] overflow-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div>
           <h2>Import flashcards</h2>
           <button onClick={onClose}>✕</button>
