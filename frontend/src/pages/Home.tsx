@@ -62,13 +62,14 @@ export default function Home() {
       {notFound && <div>That lobby doesnt exist!</div>}
       <div>
         <h1>Flashcard</h1>
-
+        <div>
         <input
+          placeholder="Your nickname"
           value={nickname}
           onChange={(name) => setNickname(name.target.value)}
         />
 
-        <div>
+        
           <button onClick={handleCreateLobby}>Create Lobby</button>
         </div>
 
