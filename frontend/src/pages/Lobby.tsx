@@ -8,6 +8,7 @@ import { Chat } from "../components/Chat";
 import { UploadFlashcard } from "../components/UploadFlashcard";
 import { LobbyHeader } from "../components/LobbyHeader";
 import { FlashcardPreview } from "../components/FlashcardPreview";
+import { Game } from "../components/Game";
 
 export default function Lobby() {
   const { code } = useParams();
@@ -17,6 +18,7 @@ export default function Lobby() {
   );
   const [nicknameInput, setNicknameInput] = useState("");
   const [isLeader, setIsLeader] = useState(false);
+  const [countdown, setCountdown] = useState<number | null>(null);
 
   useCodeValidation(code);
 
@@ -30,6 +32,18 @@ export default function Lobby() {
       setIsLeader(false);
     }
   }, [lobby]);
+
+  useEffect(() => {
+    const handleCountdown = (seconds: number) => {
+      setCountdown(seconds);
+    };
+
+    socket.on("startCountdown", handleCountdown);
+
+    return () => {
+      socket.off("startCountdown", handleCountdown);
+    };
+  }, []);
 
   const handleJoinLobby = () => {
     if (!nicknameInput.trim()) return;
@@ -78,7 +92,15 @@ export default function Lobby() {
         </div>
 
         <div className="flex-1 p-4 overflow-auto">
-          <FlashcardPreview flashcards={lobby.flashcards} />
+          {lobby.status === "starting" && countdown !== null ? (
+            <div className="flex items-center justify-center h-full">
+              <div className="text-9xl font-bold">{countdown}</div>
+            </div>
+          ) : lobby.status === "ongoing" ? (
+            <Game/>
+          ) : (
+            <FlashcardPreview flashcards={lobby.flashcards} />
+          )}
         </div>
 
         <div className="w-80 border-l">

@@ -15,7 +15,7 @@ export interface Settings {
   fuzzyTolerance: boolean;
 }
 
-export type GameStatus = "waiting" | "ongoing" | "finished";
+export type GameStatus = "waiting" | "ongoing" | "finished" | "starting";
 
 export interface Lobby {
   code: string;
@@ -26,14 +26,29 @@ export interface Lobby {
   settings: Settings;
 }
 
+export interface FlashcardEnd {
+  Answer: string;
+  fastestPlayers: { player: string; time: Number }[];
+  wrongAnswers: { player: string; answer: string }[];
+}
+
+export interface Gamestate {
+  flashcards: Flashcard[];
+  roundStart: number;
+  wrongAnswers: { player: string; answer: string }[];
+  correctAnswers: { player: string; time: number }[];
+}
+
 export interface ServerToClientEvents {
   lobbyUpdated: (lobby: Lobby) => void;
-  flashcardStart: (data: { question: string; duration: number }) => void;
-  flashcardEnd: (data: { correctAnswer: string }) => void;
   scoreUpdate: (players: Player[]) => void;
   chatMessage: (msg: { player: string; text: string }) => void;
-  gameOver: (finalScores: Player[]) => void;
   lobbyData: (lobby: Lobby | null) => void;
+  startCountdown: (secondsRemaining: number) => void;
+
+  newFlashcard: (question: string) => void;
+  correctGuess: (answer: Number) => void; // Time it took to answer correctly
+  endFlashcard: (flashcardEnd: FlashcardEnd) => void;
 }
 
 export interface ClientToServerEvents {
@@ -43,7 +58,9 @@ export interface ClientToServerEvents {
   updateSettings: (settings: Settings) => void;
   updateLeader: (nextLeaderId: string) => void;
   startGame: () => void;
-  answer: (text: string) => void;
   sendChat: (msg: string) => void;
   getLobby: (code: string) => void;
+  requestCurrentQuestion: () => void;
+
+  answer: (text: string) => void;
 }

@@ -5,18 +5,27 @@ import { Server } from "socket.io";
 import type {
   ServerToClientEvents,
   ClientToServerEvents,
-  Lobby,
 } from "@shared/types.js";
 
 import {
   createLobby,
   getLobbyByCode,
+  getLobbyBySocket,
   addPlayerToLobby,
   updateFlashcard,
   updateSettings,
   removePlayerFromLobby,
   updateLeader,
 } from "./lobbyManager.js";
+
+import {
+  startGame,
+  getCurrentQuestion,
+  validateAnswer,
+  getRoundResults,
+  advanceToNextFlashcard,
+  endGame,
+} from "./gameManager.js";
 
 const app = express();
 const httpServer = createServer(app);
@@ -86,10 +95,99 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     const lobby = removePlayerFromLobby(socket.id);
-
     if (!lobby) return;
     io.to(lobby.code).emit("lobbyUpdated", lobby);
   });
-});
 
+  socket.on("startGame", () => {
+    const lobby = startGame(socket.id);
+    if (!lobby) {
+      console.log("Failed to start game: lobby not found");
+      return;
+    }
+
+    lobby.status = "starting";
+    io.to(lobby.code).emit("lobbyUpdated", lobby);
+
+    // 3-second countdown - emit first immediately
+    let countdown = 3;
+    io.to(lobby.code).emit("startCountdown", countdown);
+    countdown--;
+    
+    const countdownInterval = setInterval(() => {
+      io.to(lobby.code).emit("startCountdown", countdown);
+      countdown--;
+      
+      if (countdown < 0) {
+        clearInterval(countdownInterval);
+        
+        // Now actually start the game
+        lobby.status = "ongoing";
+        io.to(lobby.code).emit("lobbyUpdated", lobby);
+
+        const runGameplayLoop = (lobbyCode: string) => {
+
+          const currentQuestion = getCurrentQuestion(lobbyCode);
+          if (!currentQuestion) {
+            const finalLobby = getLobbyByCode(lobbyCode);
+            if (finalLobby) {
+              finalLobby.status = "finished";
+              io.to(lobbyCode).emit("lobbyUpdated", finalLobby);
+              endGame(lobbyCode);
+            }
+            return;
+          }
+          
+          io.to(lobbyCode).emit("newFlashcard", currentQuestion);
+
+          // Wait 5 seconds for answers
+          setTimeout(() => {
+            const results = getRoundResults(lobbyCode);
+            if (results) {
+              io.to(lobbyCode).emit("endFlashcard", results);
+            }
+
+            // Wait 3 seconds to show results
+            setTimeout(() => {
+              const nextQuestion = advanceToNextFlashcard(lobbyCode);
+
+              if (nextQuestion) {
+                // Continue to next round
+                runGameplayLoop(lobbyCode);
+              } else {
+                // Game over
+                const finalLobby = getLobbyByCode(lobbyCode);
+                if (finalLobby) {
+                  finalLobby.status = "finished";
+                  io.to(lobbyCode).emit("lobbyUpdated", finalLobby);
+                  endGame(lobbyCode);
+                }
+              }
+            }, 3000);
+          }, 5000);
+        };
+
+        runGameplayLoop(lobby.code);
+      }
+    }, 1000);
+  });
+
+  socket.on("requestCurrentQuestion", () => {
+    const lobby = getLobbyBySocket(socket.id);
+    if (!lobby || lobby.status !== "ongoing") return;
+    
+    const question = getCurrentQuestion(lobby.code);
+    if (question) {
+      socket.emit("newFlashcard", question);
+    }
+  });
+
+  socket.on("answer", (text) => {
+    const result = validateAnswer(socket.id, text);
+    if (!result || !result.isCorrect) return;
+    socket.emit("correctGuess", result.timeTaken);
+    io.to(result.lobby.code).emit("lobbyUpdated", result.lobby);
+  });
+
+});
 httpServer.listen(3000, () => console.log("Server running on :3000"));
