@@ -2,21 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "../hooks/useAuth";
 import { supabase } from "../supabaseClient";
 import type { Settings } from "@shared/types";
-
-interface FlashcardDBRow {
-  id: string;
-  term: string;
-  definition: string;
-  trick_terms: string[] | null;
-  trick_definitions: string[] | null;
-  is_generated: boolean | null;
-  term_generated: boolean | null;
-  definition_generated: boolean | null;
-  order_index: number | null;
-  set_id: string | null;
-  public_set_id: string | null;
-  created_at: string;
-}
+import type { FlashcardDBRow, SettingConfig } from "../types";
 
 interface PublishFlashcardsModalProps {
   isOpen: boolean;
@@ -27,11 +13,6 @@ interface PublishFlashcardsModalProps {
   termGenerated?: boolean;
   definitionGenerated?: boolean;
   currentSettings: Settings;
-}
-
-interface SettingConfig {
-  locked: boolean;
-  value: boolean | null;
 }
 
 export function PublishFlashcardsModal({

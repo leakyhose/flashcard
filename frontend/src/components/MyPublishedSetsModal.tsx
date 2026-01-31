@@ -4,45 +4,13 @@ import { supabase } from "../supabaseClient";
 import { ExportModal } from "./ExportModal";
 import type { Settings } from "@shared/types";
 import { getRelativeTime } from "../utils/flashcardUtils";
+import type { PublicFlashcardSet, EditableFlashcard, SettingConfig } from "../types";
+import { DEFAULT_PAGE_SIZE, CARD_PAGE_SIZE } from "../constants";
 
 interface MyPublishedSetsModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentSettings: Settings;
-}
-
-interface PublicFlashcardSet {
-  id: string;
-  name: string;
-  description: string;
-  created_at: string;
-  updated_at: string;
-  plays: number;
-  user_id: string;
-  username: string;
-  allow_view: boolean;
-  allow_save: boolean;
-  shuffle_flashcard: boolean | null;
-  fuzzy_tolerance: boolean | null;
-  use_term: boolean | null;
-  use_mc: boolean | null;
-  flashcard_count?: number;
-  has_generated?: boolean;
-  term_generated?: boolean;
-  definition_generated?: boolean;
-}
-
-interface EditableFlashcard {
-  id: string;
-  term: string;
-  definition: string;
-  trick_terms: string[];
-  trick_definitions: string[];
-}
-
-interface SettingConfig {
-  locked: boolean;
-  value: boolean | null;
 }
 
 export function MyPublishedSetsModal({
@@ -59,7 +27,6 @@ export function MyPublishedSetsModal({
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const PAGE_SIZE = 20;
 
   const [editingSet, setEditingSet] = useState<PublicFlashcardSet | null>(null);
   const [flashcards, setFlashcards] = useState<EditableFlashcard[]>([]);
@@ -69,7 +36,6 @@ export function MyPublishedSetsModal({
   const [cardHasMore, setCardHasMore] = useState(true);
   const [cardLoading, setCardLoading] = useState(false);
   const [isLoadingMoreCards, setIsLoadingMoreCards] = useState(false);
-  const CARD_PAGE_SIZE = 50;
 
   const [editName, setEditName] = useState("");
   const [editDescription, setEditDescription] = useState("");
@@ -102,8 +68,8 @@ export function MyPublishedSetsModal({
       setError("");
 
       try {
-        const from = pageToFetch * PAGE_SIZE;
-        const to = from + PAGE_SIZE - 1;
+        const from = pageToFetch * DEFAULT_PAGE_SIZE;
+        const to = from + DEFAULT_PAGE_SIZE - 1;
 
         const { data, error: fetchError } = await supabase
           .from("public_flashcard_sets")
@@ -115,7 +81,7 @@ export function MyPublishedSetsModal({
 
         if (fetchError) throw fetchError;
 
-        if (data && data.length < PAGE_SIZE) {
+        if (data && data.length < DEFAULT_PAGE_SIZE) {
           setHasMore(false);
         }
 

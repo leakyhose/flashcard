@@ -1,5 +1,5 @@
 import type { Flashcard, Lobby, Settings, Player } from "@shared/types.js";
-import { generateCode, deleteCode } from "./codeGenerator.js";
+import { generateCode, deleteCode } from "./utils/codeGenerator.js";
 import { addPlayer, removePlayer } from "./playerManager.js";
 
 const lobbies = new Map<string, Lobby>();

@@ -6,8 +6,8 @@ import {
 } from "./lobbyManager.js";
 import { generateResponse } from "./generateDistractors.js";
 
-import { shuffle, swap } from "./util.js";
-import { normalizeForFuzzy } from "./fuzzySearch.js";
+import { shuffle, swap } from "./utils/util.js";
+import { normalizeForFuzzy } from "./utils/fuzzySearch.js";
 
 const codeToGamestate = new Map<string, Gamestate>();
 
@@ -157,10 +157,6 @@ export function startGame(socketId: string) {
   });
 
   return lobby;
-}
-
-export function shuffleGameCards(lobbyCode: string) {
-  return;
 }
 
 export function setRoundStart(lobbyCode: string) {

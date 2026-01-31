@@ -5,6 +5,7 @@ import { loadPublicSet, type LoadedPublicSet } from "../utils/loadPublicSet";
 import { useState, useEffect, useRef } from "react";
 import { UserStatusHeader } from "./UserStatusHeader";
 import { GenerateModal } from "./GenerateModal";
+import { FEATURED_USER_ID } from "../constants";
 
 interface LobbyHeaderProps {
   code: string;
@@ -117,7 +118,7 @@ export function LobbyHeader({
     lobby.flashcards.length > 0 &&
     !allCardsGenerated;
 
-  const isPrivilegedUser = userId === "d0c1b157-eb1f-42a9-bf67-c6384b7ca278";
+  const isPrivilegedUser = userId === FEATURED_USER_ID;
   const isLargeSet = lobby.flashcards.length >= 200;
   const canGenerate = !isLargeSet || isPrivilegedUser;
 

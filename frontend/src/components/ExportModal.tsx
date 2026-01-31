@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "../supabaseClient";
+import type { FlashcardDBRow } from "../types";
 
 interface ExportModalProps {
   isOpen: boolean;
@@ -7,15 +8,6 @@ interface ExportModalProps {
   setId: string;
   setName: string;
   isPublicSet?: boolean;
-}
-
-interface FlashcardDBRow {
-  id: string;
-  term: string;
-  definition: string;
-  trick_terms: string[] | null;
-  trick_definitions: string[] | null;
-  order_index: number;
 }
 
 type ExportMode = "standard" | "term-distractors" | "definition-distractors";

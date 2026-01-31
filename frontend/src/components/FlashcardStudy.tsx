@@ -4,6 +4,7 @@ import { ArrowButton } from "./ArrowButton";
 import { SaveButton } from "./SaveButton";
 import { getRelativeTime } from "../utils/flashcardUtils";
 import type { LoadedPublicSet } from "../utils/loadPublicSet";
+import { FEATURED_USER_ID } from "../constants";
 
 interface FlashcardStudyProps {
   flashcards: Flashcard[];
@@ -165,7 +166,7 @@ export function FlashcardStudy({
                     <div className="w-full h-full border-2 border-coffee bg-vanilla p-8 rounded-[20px] shadow-[inset_0_0_0_3px_var(--color-terracotta)] flex flex-col items-center justify-center gap-6 select-none">
                       <div className="w-full flex flex-col items-center justify-center">
                         {publicSetInfo?.user_id ===
-                          "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" && (
+                          FEATURED_USER_ID && (
                           <div className="flex flex-col items-center mb-2 gap-1">
                             <div className="text-xl">⭐</div>
                             <div className="text-xs font-bold text-coffee/80 uppercase tracking-wider">

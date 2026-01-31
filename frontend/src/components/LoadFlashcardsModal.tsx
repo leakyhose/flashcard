@@ -8,17 +8,8 @@ import { EditFlashcardsModal } from "./EditFlashcardsModal";
 import { MyPublishedSetsModal } from "./MyPublishedSetsModal";
 import { getRelativeTime } from "../utils/flashcardUtils";
 import { loadPublicSet, type LoadedPublicSet } from "../utils/loadPublicSet";
-
-interface FlashcardDBRow {
-  term: string;
-  definition: string;
-  trick_terms: string[] | null;
-  trick_definitions: string[] | null;
-  is_generated: boolean | null;
-  term_generated: boolean | null;
-  definition_generated: boolean | null;
-  order_index: number | null;
-}
+import type { FlashcardDBRow, FlashcardSetSummary } from "../types";
+import { FEATURED_USER_ID, DEFAULT_PAGE_SIZE } from "../constants";
 
 interface LoadFlashcardsModalProps {
   isOpen: boolean;
@@ -30,21 +21,6 @@ interface LoadFlashcardsModalProps {
   onPublicSetLoaded?: (set: LoadedPublicSet) => void;
   isLeader: boolean;
   initialTab?: "personal" | "community";
-}
-
-interface FlashcardSet {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at?: string;
-  flashcard_count: number;
-  has_generated: boolean;
-  term_generated?: boolean;
-  definition_generated?: boolean;
-  plays?: number;
-  user_id?: string;
-  username?: string;
-  description?: string;
 }
 
 export function LoadFlashcardsModal({
@@ -62,12 +38,12 @@ export function LoadFlashcardsModal({
   const [activeTab, setActiveTab] = useState<"personal" | "community">(
     initialTab,
   );
-  const [sets, setSets] = useState<FlashcardSet[]>([]);
+  const [sets, setSets] = useState<FlashcardSetSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSetId, setLoadingSetId] = useState<string | null>(null);
   const [error, setError] = useState("");
-  const [publishingSet, setPublishingSet] = useState<FlashcardSet | null>(null);
-  const [editingSet, setEditingSet] = useState<FlashcardSet | null>(null);
+  const [publishingSet, setPublishingSet] = useState<FlashcardSetSummary | null>(null);
+  const [editingSet, setEditingSet] = useState<FlashcardSetSummary | null>(null);
   const [showMyPublishedSets, setShowMyPublishedSets] = useState(false);
   const [shakingId, setShakingId] = useState<string | null>(null);
   const mouseDownOnBackdrop = useRef(false);
@@ -76,7 +52,6 @@ export function LoadFlashcardsModal({
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const PAGE_SIZE = 20;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [submittedQuery, setSubmittedQuery] = useState("");
@@ -111,9 +86,9 @@ export function LoadFlashcardsModal({
     setError("");
 
     try {
-      const from = pageToFetch * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      let data: FlashcardSet[] = [];
+      const from = pageToFetch * DEFAULT_PAGE_SIZE;
+      const to = from + DEFAULT_PAGE_SIZE - 1;
+      let data: FlashcardSetSummary[] = [];
       let fetchError = null;
 
       if (tab === "personal") {
@@ -179,7 +154,7 @@ export function LoadFlashcardsModal({
 
       if (fetchError) throw fetchError;
 
-      if (data.length < PAGE_SIZE) {
+      if (data.length < DEFAULT_PAGE_SIZE) {
         setHasMore(false);
       }
 
@@ -657,7 +632,7 @@ export function LoadFlashcardsModal({
                         <div className="flex-1 flex flex-col items-center justify-center w-full gap-2 overflow-hidden">
                           {activeTab === "community" &&
                             set.user_id ===
-                              "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" && (
+                              FEATURED_USER_ID && (
                               <div className="flex flex-col items-center mb-1">
                                 <div className="text-sm">⭐</div>
                                 <div className="shrink-0 text-xs font-bold text-coffee/80 uppercase tracking-wider">
@@ -684,7 +659,7 @@ export function LoadFlashcardsModal({
                             {activeTab === "community" &&
                               set.username &&
                               set.user_id !==
-                                "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" && (
+                                FEATURED_USER_ID && (
                                 <p className="text-xs text-coffee/40 font-bold">
                                   by {set.username}
                                 </p>

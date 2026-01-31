@@ -8,32 +8,8 @@ import { getRelativeTime } from "../utils/flashcardUtils";
 import { PublishFlashcardsModal } from "./PublishFlashcardsModal";
 import { EditFlashcardsModal } from "./EditFlashcardsModal";
 import { MyPublishedSetsModal } from "./MyPublishedSetsModal";
-
-interface FlashcardDBRow {
-  term: string;
-  definition: string;
-  trick_terms: string[] | null;
-  trick_definitions: string[] | null;
-  is_generated: boolean | null;
-  term_generated: boolean | null;
-  definition_generated: boolean | null;
-  order_index: number | null;
-}
-
-interface FlashcardSet {
-  id: string;
-  name: string;
-  created_at: string;
-  updated_at?: string;
-  description?: string;
-  flashcard_count: number;
-  has_generated: boolean;
-  term_generated?: boolean;
-  definition_generated?: boolean;
-  plays?: number;
-  user_id?: string;
-  username?: string;
-}
+import type { FlashcardDBRow, FlashcardSetSummary } from "../types";
+import { FEATURED_USER_ID, DEFAULT_PAGE_SIZE } from "../constants";
 
 interface JumboLoadFlashcardsProps {
   isLeader: boolean;
@@ -70,19 +46,18 @@ export function JumboLoadFlashcards({
   },
 }: JumboLoadFlashcardsProps) {
   const { user } = useAuth();
-  const [sets, setSets] = useState<FlashcardSet[]>([]);
+  const [sets, setSets] = useState<FlashcardSetSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingSetId, setLoadingSetId] = useState<string | null>(null);
   const [shakingSetId, setShakingSetId] = useState<string | null>(null);
-  const [publishingSet, setPublishingSet] = useState<FlashcardSet | null>(null);
-  const [editingSet, setEditingSet] = useState<FlashcardSet | null>(null);
+  const [publishingSet, setPublishingSet] = useState<FlashcardSetSummary | null>(null);
+  const [editingSet, setEditingSet] = useState<FlashcardSetSummary | null>(null);
   const [showMyPublishedSets, setShowMyPublishedSets] = useState(false);
   const requestIdRef = useRef(0);
 
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const PAGE_SIZE = 20;
 
   const fetchSets = useCallback(async (pageToFetch: number, isInitial: boolean = false, currentRequestId: number = 0) => {
     if (isInitial) {
@@ -92,9 +67,9 @@ export function JumboLoadFlashcards({
     }
 
     try {
-      const from = pageToFetch * PAGE_SIZE;
-      const to = from + PAGE_SIZE - 1;
-      let data: FlashcardSet[] = [];
+      const from = pageToFetch * DEFAULT_PAGE_SIZE;
+      const to = from + DEFAULT_PAGE_SIZE - 1;
+      let data: FlashcardSetSummary[] = [];
       let fetchError = null;
 
       if (activeTab === "personal") {
@@ -159,7 +134,7 @@ export function JumboLoadFlashcards({
 
       if (fetchError) throw fetchError;
 
-      if (data.length < PAGE_SIZE) {
+      if (data.length < DEFAULT_PAGE_SIZE) {
         setHasMore(false);
       }
 
@@ -506,7 +481,7 @@ export function JumboLoadFlashcards({
                       <div className="flex-1 flex flex-col items-center justify-center w-full gap-2">
                         {activeTab === "community" &&
                           set.user_id ===
-                            "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" && (
+                            FEATURED_USER_ID && (
                             <div className="flex flex-col items-center mb-1">
                               <div className="text-xs">⭐</div>
                               <div className="shrink-0 text-xs font-bold text-coffee/80 uppercase tracking-wider">
@@ -533,7 +508,7 @@ export function JumboLoadFlashcards({
                           {activeTab === "community" &&
                             set.username &&
                             set.user_id !==
-                              "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" && (
+                              FEATURED_USER_ID && (
                               <p className="text-xs text-coffee/40 font-bold">
                                 by {set.username}
                               </p>

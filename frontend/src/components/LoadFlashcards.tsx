@@ -5,28 +5,8 @@ import { socket } from "../socket";
 import type { Flashcard } from "@shared/types";
 import { loadPublicSet, type LoadedPublicSet } from "../utils/loadPublicSet";
 import { getRelativeTime } from "../utils/flashcardUtils";
-
-interface FlashcardDBRow {
-  term: string;
-  definition: string;
-  trick_terms: string[] | null;
-  trick_definitions: string[] | null;
-  is_generated: boolean | null;
-  term_generated: boolean | null;
-  definition_generated: boolean | null;
-  order_index: number | null;
-}
-
-interface FlashcardSet {
-  id: string;
-  name: string;
-  created_at: string;
-  flashcard_count: number;
-  has_generated: boolean;
-  plays?: number;
-  user_id?: string;
-  username?: string;
-}
+import type { FlashcardDBRow, FlashcardSetSummary } from "../types";
+import { FEATURED_USER_ID } from "../constants";
 
 interface LoadFlashcardsProps {
   isLeader: boolean;
@@ -64,7 +44,7 @@ export function LoadFlashcards({
   const [activeTab, setActiveTab] = useState<"personal" | "community">(
     "community",
   );
-  const [sets, setSets] = useState<FlashcardSet[]>([]);
+  const [sets, setSets] = useState<FlashcardSetSummary[]>([]);
   const [loading, setLoading] = useState(false);
   const [shakingSetId, setShakingSetId] = useState<string | null>(null);
   const [currentlyLoaded, setCurrentlyLoaded] = useState<string | null>(null);
@@ -75,7 +55,7 @@ export function LoadFlashcards({
       setLoading(true);
 
       try {
-        let data: FlashcardSet[] | null = [];
+        let data: FlashcardSetSummary[] | null = [];
         let fetchError = null;
 
         if (activeTab === "personal") {
@@ -356,7 +336,7 @@ export function LoadFlashcards({
                           <h3 className="truncate font-bold text-sm transition-colors">
                             {activeTab === "community" &&
                               set.user_id ===
-                                "d0c1b157-eb1f-42a9-bf67-c6384b7ca278" &&
+                                FEATURED_USER_ID &&
                               "⭐ "}
                             {set.name}
                           </h3>
